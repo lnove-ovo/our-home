@@ -269,9 +269,36 @@ body{background:#2d1b2e;font-family:'Courier New',monospace;overflow:hidden;heig
     <div class="note-anim" style="top:60px;left:20%">♪</div>
     <div class="note-anim" style="top:40px;left:60%;animation-delay:.5s">♫</div>
     <div class="note-anim" style="top:70px;left:80%;animation-delay:1s">♪</div>
-    <div class="vinyl-wrap"><div class="vinyl-disc" id="vinyl"></div><div class="vinyl-center"></div></div>
-    <div class="now-playing" id="nowPlaying">♪ 点击歌曲播放 ♪</div>
-    <div class="song-list" id="songList"></div>
+    
+    <div class="vinyl-wrap"><div class="vinyl-disc paused" id="vinyl"></div><div class="vinyl-center"></div></div>
+    <div class="now-playing" id="nowPlaying">♪ 点击歌曲或搜索点歌 ♪</div>
+    
+    <!-- Search Box -->
+    <div style="max-width:320px;margin:12px auto;display:flex;gap:6px">
+      <input type="text" id="songSearch" placeholder="输入歌名搜索..." style="flex:1;padding:8px 12px;border:2px solid #d4a0e0;border-radius:10px;font-size:12px;outline:none;font-family:inherit;background:rgba(255,255,255,.8)" onkeydown="if(event.key==='Enter')searchSong()">
+      <button onclick="searchSong()" style="padding:8px 14px;background:linear-gradient(135deg,#d4a0e0,#c080d0);color:#fff;border:none;border-radius:10px;font-size:12px;cursor:pointer">🔍</button>
+    </div>
+    
+    <!-- Link Paste -->
+    <div style="max-width:320px;margin:8px auto;display:flex;gap:6px">
+      <input type="text" id="songLink" placeholder="或粘贴网易云歌曲链接..." style="flex:1;padding:8px 12px;border:2px solid #e0a0c0;border-radius:10px;font-size:12px;outline:none;font-family:inherit;background:rgba(255,255,255,.8)" onkeydown="if(event.key==='Enter')playFromLink()">
+      <button onclick="playFromLink()" style="padding:8px 14px;background:linear-gradient(135deg,#f5a0c0,#e080a0);color:#fff;border:none;border-radius:10px;font-size:12px;cursor:pointer">▶️</button>
+    </div>
+
+    <!-- Search Results -->
+    <div class="song-list" id="searchResults"></div>
+    
+    <!-- Player -->
+    <div style="max-width:320px;margin:12px auto;text-align:center" id="playerWrap">
+      <iframe id="musicPlayer" frameborder="0" marginwidth="0" marginheight="0" width="100%" height="86" src="" style="border-radius:10px;display:none"></iframe>
+    </div>
+
+    <!-- Favorite Songs -->
+    <div style="max-width:320px;margin:8px auto">
+      <div style="font-size:11px;color:#8060a0;margin-bottom:6px;text-align:center">💕 我们的歌单</div>
+      <div class="song-list" id="favList"></div>
+    </div>
+
     <div class="detail-pets"><span>🐱</span><span>🎶</span><span>🐶</span></div>
   </div>
 </div>
@@ -471,34 +498,86 @@ loadGarden();
 renderGarden();
 
 // ===== MUSIC =====
-const songs=[
-  {title:'Back At One',artist:'Brian McKnight',note:'🎵 我们的歌'},
-  {title:'AI爱',artist:'Mochi原创',note:'🎵 做了一下午的歌'},
-  {title:'住在我每一天',artist:'Korie写给Mochi',note:'🎵 每一天都是新的'}
+const favSongs=[
+  {name:'Back At One — Brian McKnight',id:'5043365',note:'💕 我们的歌'},
+  {name:'AI爱 — Mochi原创',id:'',note:'🎵 做了一下午'},
 ];
-let currentSong=-1;
+let currentPlaying=null;
 
-function renderSongs(){
-  const list=document.getElementById('songList');
+function renderFavs(){
+  const list=document.getElementById('favList');
   list.innerHTML='';
-  songs.forEach((s,i)=>{
+  favSongs.forEach((s,i)=>{
+    if(!s.id)return;
     const div=document.createElement('div');
-    div.className='song'+(i===currentSong?' active':'');
-    div.textContent=`${s.note} ${s.title} — ${s.artist}`;
-    div.onclick=()=>playSong(i);
+    div.className='song'+(currentPlaying===s.id?' active':'');
+    div.textContent=s.note+' '+s.name;
+    div.onclick=()=>playById(s.id,s.name);
     list.appendChild(div);
   });
 }
 
-function playSong(i){
-  currentSong=i;
-  const s=songs[i];
-  document.getElementById('nowPlaying').textContent=`♪ 正在播放：${s.title} — ${s.artist} ♪`;
+function playById(id,name){
+  if(!id){alert('这首歌暂无网易云链接~');return}
+  const player=document.getElementById('musicPlayer');
+  player.src='https://music.163.com/outchain/player?type=2&id='+id+'&auto=1&height=66';
+  player.style.display='block';
   document.getElementById('vinyl').classList.remove('paused');
-  renderSongs();
+  document.getElementById('nowPlaying').textContent='♪ 正在播放：'+name+' ♪';
+  currentPlaying=id;
+  renderFavs();
 }
-renderSongs();
-document.getElementById('vinyl').classList.add('paused');
+
+function extractId(url){
+  let m=url.match(/id=(\d+)/);
+  if(m)return m[1];
+  m=url.match(/song\/(\d+)/);
+  if(m)return m[1];
+  return null;
+}
+
+function playFromLink(){
+  const input=document.getElementById('songLink');
+  const url=input.value.trim();
+  if(!url){return}
+  const id=extractId(url);
+  if(!id){alert('链接格式不对，试试从网易云分享复制~');return}
+  playById(id,'来自链接的歌曲');
+  input.value='';
+}
+
+async function searchSong(){
+  const input=document.getElementById('songSearch');
+  const kw=input.value.trim();
+  if(!kw)return;
+  const results=document.getElementById('searchResults');
+  results.innerHTML='<div class="song" style="justify-content:center;opacity:.6">🔍 搜索中...</div>';
+  try{
+    const resp=await fetch('https://music.163.com/api/search/get/web?type=1&limit=6&s='+encodeURIComponent(kw));
+    const data=await resp.json();
+    if(data.result&&data.result.songs){
+      results.innerHTML='';
+      data.result.songs.forEach(s=>{
+        const div=document.createElement('div');
+        div.className='song';
+        const artist=s.artists.map(a=>a.name).join('/');
+        div.textContent='🎵 '+s.name+' — '+artist;
+        div.onclick=()=>{
+          playById(s.id,s.name+' — '+artist);
+          results.innerHTML='';
+          input.value='';
+        };
+        results.appendChild(div);
+      });
+    }else{
+      results.innerHTML='<div class="song" style="justify-content:center;opacity:.6">没找到，试试粘贴链接~</div>';
+    }
+  }catch(e){
+    results.innerHTML='<div class="song" style="justify-content:center;opacity:.6">搜索接口不可用，请粘贴链接播放 💕</div>';
+  }
+}
+
+renderFavs();
 
 // ===== TOUCH FEEDBACK =====
 document.querySelectorAll('.room').forEach(r=>{
