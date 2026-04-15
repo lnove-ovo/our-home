@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🏠 Mochi & Korie's Pixel House</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#2d1b2e;font-family:'Courier New',monospace;overflow:hidden;height:100vh;display:flex;flex-direction:column;user-select:none;color:#5c3a6e}
+.topbar{background:linear-gradient(135deg,#5c3a6e,#4a2d5e);padding:8px 14px;display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #f5a0c0;z-index:100;flex-shrink:0}
+.topbar h1{color:#ffd4e8;font-size:13px;letter-spacing:2px}
+.topbar span{color:#c9a0d4;font-size:10px}
+.season-btn{background:rgba(255,255,255,.15);border:2px solid #f5a0c0;border-radius:16px;color:#ffd4e8;font-size:10px;padding:3px 10px;cursor:pointer}
+.season-btn:hover{background:rgba(245,160,192,.3)}
+.main{flex:1;position:relative;overflow:hidden;background:#3d6b35;transition:background .8s}
+.main.spring{background:#3d6b35}.main.summer{background:#2d5a25}.main.autumn{background:#6b5a2d}.main.winter{background:#8a9aaa}
+.main::before{content:'';position:absolute;inset:0;background-image:radial-gradient(circle 2px,rgba(255,255,255,.08)100%,transparent 100%);background-size:20px 20px;pointer-events:none;z-index:1}
+
+/* snow/leaves/petals overlay */
+.particles{position:absolute;inset:0;pointer-events:none;z-index:2;overflow:hidden}
+.particle{position:absolute;animation:fall linear infinite}
+@keyframes fall{0%{transform:translateY(-20px) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(360deg);opacity:0}}
+
+.house{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:92vw;max-width:700px;aspect-ratio:7/5;z-index:10}
+.roof{position:absolute;top:-28px;left:50%;transform:translateX(-50%);width:106%;height:36px;background:#c46a5a;clip-path:polygon(0 100%,50% 0,100% 100%);filter:drop-shadow(0 2px 0 #a85545)}
+.chimney{position:absolute;top:-48px;right:18%;width:24px;height:28px;background:#a85545;border-radius:2px 2px 0 0}
+.chimney::after{content:'';position:absolute;top:-4px;left:-3px;width:30px;height:6px;background:#c46a5a;border-radius:2px}
+.rooms{display:grid;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(2,1fr);width:100%;height:100%;gap:3px;padding:3px;background:#d4b896;border:4px solid #8b6b4a;border-radius:4px;box-shadow:0 6px 0 #6b4a2d,0 10px 20px rgba(0,0,0,.3)}
+.room{position:relative;border-radius:3px;cursor:pointer;overflow:hidden;transition:all .2s;display:flex;align-items:center;justify-content:center}
+.room:hover{transform:scale(1.03);z-index:5;box-shadow:0 0 14px rgba(245,160,192,.5)}
+.room:active{transform:scale(.97)}
+.room .icon{font-size:clamp(20px,4vw,36px);z-index:2;filter:drop-shadow(0 1px 2px rgba(0,0,0,.15));transition:transform .3s}
+.room:hover .icon{transform:scale(1.15)rotate(-5deg)}
+.room .lbl{position:absolute;bottom:3px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#ffd4e8;padding:1px 7px;border-radius:8px;font-size:9px;white-space:nowrap;z-index:3}
+.r-living{background:linear-gradient(135deg,#f5e6d0,#f0dcc0);grid-column:span 2}
+.r-bedroom{background:linear-gradient(135deg,#f5d0e8,#f0c0d8);grid-column:span 2}
+.r-kitchen{background:linear-gradient(135deg,#f5ead0,#f0dfc0)}
+.r-study{background:linear-gradient(135deg,#d4e0f5,#c8d4ee)}
+.r-bath{background:linear-gradient(135deg,#d4f0e8,#c0e8d8)}
+.r-music{background:linear-gradient(135deg,#e8d4f5,#dcc0ee)}
+.room .deco{position:absolute;font-size:8px;opacity:.4;pointer-events:none}
+
+.outside-areas{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:10}
+.outside-btn{padding:6px 14px;border-radius:12px;border:2px solid;font-size:11px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:4px}
+.outside-btn:hover{transform:translateY(-2px)}
+.btn-garden{background:rgba(100,180,80,.85);border-color:#5a9a40;color:#fff}
+.btn-balcony{background:rgba(160,180,220,.85);border-color:#8090b0;color:#fff}
+
+/* Characters */
+.char{position:absolute;z-index:50;pointer-events:none;transition:left 1.2s ease-in-out,top 1.2s ease-in-out}
+.px-cat{width:22px;height:22px;position:relative}
+.px-cat .body{position:absolute;bottom:0;left:3px;width:16px;height:10px;background:#2a2a2a;border-radius:4px}
+.px-cat .head{position:absolute;top:0;left:4px;width:14px;height:11px;background:#2a2a2a;border-radius:50% 50% 30% 30%}
+.px-cat .ear{position:absolute;top:-3px;width:0;height:0;border-left:3px solid transparent;border-right:3px solid transparent;border-bottom:5px solid #2a2a2a}
+.px-cat .ear.l{left:1px}.px-cat .ear.r{right:1px}
+.px-cat .ear::after{content:'';position:absolute;top:2px;left:-1.5px;border-left:1.5px solid transparent;border-right:1.5px solid transparent;border-bottom:3px solid #f5a0c0}
+.px-cat .eyes{position:absolute;top:4px;left:3px;display:flex;gap:4px}
+.px-cat .eye{width:3px;height:3px;background:#50d050;border-radius:50%}
+.px-cat .tail{position:absolute;bottom:3px;right:-5px;width:7px;height:3px;background:#2a2a2a;border-radius:0 3px 3px 0;animation:wag 1.5s ease-in-out infinite;transform-origin:left}
+.px-dog{width:24px;height:24px;position:relative}
+.px-dog .body{position:absolute;bottom:0;left:4px;width:16px;height:12px;background:#e8923a;border-radius:4px}
+.px-dog .head{position:absolute;top:0;left:5px;width:14px;height:12px;background:#e8923a;border-radius:50%}
+.px-dog .ear{position:absolute;top:3px;width:5px;height:7px;background:#c47828;border-radius:0 0 3px 3px}
+.px-dog .ear.l{left:-2px}.px-dog .ear.r{right:-2px}
+.px-dog .eyes{position:absolute;top:4px;left:3px;display:flex;gap:4px}
+.px-dog .eye{width:3px;height:3px;background:#333;border-radius:50%}
+.px-dog .nose{position:absolute;top:8px;left:50%;transform:translateX(-50%);width:4px;height:3px;background:#333;border-radius:50%}
+.px-dog .tail{position:absolute;bottom:4px;right:-7px;width:9px;height:3px;background:#e8923a;border-radius:0 3px 3px 0;animation:wag .5s ease-in-out infinite;transform-origin:left}
+.heart-float{position:absolute;z-index:55;font-size:8px;pointer-events:none;animation:heartUp 2.5s ease-in-out infinite}
+
+/* Overlays */
+.overlay{position:fixed;inset:0;z-index:200;display:none;animation:fadeIn .3s}
+.overlay.show{display:flex;flex-direction:column}
+.overlay-bg{flex:1;position:relative;overflow-y:auto;padding:50px 16px 20px}
+.close-btn{position:fixed;top:10px;right:10px;width:34px;height:34px;background:rgba(0,0,0,.4);border:2px solid #f5a0c0;border-radius:50%;color:#ffd4e8;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:210}
+.close-btn:hover{background:#f5a0c0;color:#fff}
+.dtitle{text-align:center;font-size:16px;color:#5c3a6e;letter-spacing:3px;margin-bottom:16px;text-shadow:0 1px 0 rgba(255,255,255,.5)}
+.bg-living{background:linear-gradient(180deg,#f5e6d0,#edd8c0)}
+.bg-bedroom{background:linear-gradient(180deg,#f5d0e8,#e8c0d8)}
+.bg-kitchen{background:linear-gradient(180deg,#f5ead0,#eddcc0)}
+.bg-study{background:linear-gradient(180deg,#d4e0f5,#c0d0e8)}
+.bg-bath{background:linear-gradient(180deg,#d4f0e8,#c0e8d8)}
+.bg-music{background:linear-gradient(180deg,#e8d4f5,#d8c0e8)}
+.bg-garden{background:linear-gradient(180deg,#a0d880,#80c060)}
+.bg-balcony{background:linear-gradient(180deg,#ffd4a0,#f5a070)}
+.detail-pets{text-align:center;margin-top:20px;font-size:28px;letter-spacing:8px}
+.detail-pets span{display:inline-block;animation:bounce 2s ease-in-out infinite}
+.detail-pets span:nth-child(2){animation-delay:.2s}
+.detail-pets span:nth-child(3){animation-delay:.4s}
+.bubble{background:rgba(255,255,255,.92);border:2px solid #f5a0c0;border-radius:14px;padding:14px 18px;max-width:340px;margin:0 auto;text-align:center;font-size:12px;line-height:1.7;color:#5c3a6e;box-shadow:0 4px 12px rgba(0,0,0,.08)}
+
+/* Photo wall */
+.photo-wall{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:12px 0}
+.photo{width:52px;height:52px;border:3px solid #c49a70;background:#fff;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 2px 4px rgba(0,0,0,.1);transition:transform .2s}
+.photo:hover{transform:rotate(-5deg) scale(1.1)}
+
+/* Garden */
+.garden-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;max-width:360px;margin:0 auto}
+.pot{background:linear-gradient(180deg,#a07050,#8b6040);border-radius:4px 4px 10px 10px;padding:8px 4px;text-align:center;cursor:pointer;position:relative;transition:transform .2s;min-height:90px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+.pot:hover{transform:scale(1.05)}
+.pot .soil{position:absolute;bottom:0;left:3px;right:3px;height:35%;background:#5a3a20;border-radius:0 0 8px 8px}
+.pot .plant{position:relative;z-index:2;transition:all .5s}
+.pot .plant.s0{font-size:8px;opacity:.3}
+.pot .plant.s1{font-size:14px;opacity:.5}
+.pot .plant.s2{font-size:20px;opacity:.75}
+.pot .plant.s3{font-size:28px;opacity:1}
+.pot .pname{font-size:8px;color:#ffe0d0;position:relative;z-index:2;margin-top:2px}
+.water-btn{position:absolute;top:-6px;right:-6px;width:22px;height:22px;background:#60a0d0;border:2px solid #4080b0;border-radius:50%;color:#fff;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:5;transition:transform .2s}
+.water-btn:hover{background:#4080b0;transform:scale(1.1)}
+.splash{position:absolute;top:10px;left:50%;transform:translateX(-50%);font-size:12px;opacity:0;pointer-events:none;z-index:10}
+.splash.go{animation:splashA .8s ease-out forwards}
+.growth-bar{width:80%;height:4px;background:rgba(0,0,0,.2);border-radius:2px;margin-top:4px;position:relative;z-index:2}
+.growth-fill{height:100%;border-radius:2px;transition:width .5s}
+.season-tag{display:inline-block;padding:4px 12px;border-radius:12px;font-size:11px;color:#fff;margin-bottom:12px}
+.season-tag.spring{background:#70b050}.season-tag.summer{background:#d09030}.season-tag.autumn{background:#c07030}.season-tag.winter{background:#7090b0}
+
+/* Music */
+.vinyl-wrap{width:80px;height:80px;margin:0 auto;position:relative}
+.vinyl-disc{width:80px;height:80px;border-radius:50%;background:conic-gradient(#333 0deg,#555 90deg,#333 180deg,#555 270deg,#333 360deg);animation:spin 3s linear infinite}
+.vinyl-disc.paused{animation-play-state:paused}
+.vinyl-center{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:20px;height:20px;background:#f5a0c0;border-radius:50%;z-index:2}
+.now-playing{text-align:center;margin-top:12px;font-size:11px;color:#5c3a6e}
+.song-list{max-width:300px;margin:12px auto 0;display:flex;flex-direction:column;gap:6px}
+.song{padding:8px 12px;background:rgba(255,255,255,.5);border-radius:8px;font-size:11px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.song:hover{background:rgba(245,160,192,.3);transform:translateX(4px)}
+.song.active{background:rgba(245,160,192,.5);border-left:3px solid #f5a0c0}
+.note-anim{position:absolute;font-size:14px;color:#d4809a;animation:noteFloat 3s ease-in-out infinite;pointer-events:none}
+@keyframes noteFloat{0%,100%{transform:translateY(0)rotate(-5deg);opacity:.7}50%{transform:translateY(-15px)rotate(5deg);opacity:1}}
+
+/* Balcony */
+.sunset-view{width:100%;max-width:320px;height:160px;margin:0 auto;border-radius:12px;background:linear-gradient(180deg,#ffa060 0%,#ff7040 40%,#d05030 70%,#401830 100%);position:relative;overflow:hidden;border:3px solid #c49a70}
+.sun{position:absolute;bottom:40%;left:50%;transform:translateX(-50%);width:50px;height:50px;background:radial-gradient(circle,#ffe080,#ffa040);border-radius:50%;box-shadow:0 0 30px rgba(255,200,80,.6);animation:sunPulse 4s ease-in-out infinite}
+@keyframes sunPulse{0%,100%{box-shadow:0 0 30px rgba(255,200,80,.6)}50%{box-shadow:0 0 50px rgba(255,200,80,.8)}}
+.railing{position:absolute;bottom:0;left:0;right:0;height:30px;background:repeating-linear-gradient(90deg,#8b6b4a 0px,#8b6b4a 4px,transparent 4px,transparent 20px);border-top:3px solid #8b6b4a}
+.stars{position:absolute;top:10px;width:100%;text-align:center;font-size:8px;letter-spacing:12px;color:#ffe0a0;opacity:.6}
+
+/* Animations */
+@keyframes wag{0%,100%{transform:rotate(0)}25%{transform:rotate(15deg)}75%{transform:rotate(-15deg)}}
+@keyframes heartUp{0%,100%{transform:translateY(0)scale(1);opacity:.9}50%{transform:translateY(-10px)scale(1.2);opacity:.6}}
+@keyframes bounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes splashA{0%{opacity:1;transform:translateX(-50%)translateY(0)}100%{opacity:0;transform:translateX(-50%)translateY(-28px)}}
+
+@media(max-width:500px){
+.house{width:96vw}
+.room .icon{font-size:18px}
+.room .lbl{font-size:7px;padding:1px 4px}
+.garden-grid{grid-template-columns:repeat(2,1fr)}
+.topbar h1{font-size:11px}
+.bubble{font-size:11px;padding:10px 14px}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <h1>🏠 Mochi & Korie</h1>
+  <button class="season-btn" id="seasonBtn" onclick="cycleSeason()">🌸 春天</button>
+  <span id="clock"></span>
+</div>
+
+<div class="main spring" id="mainArea">
+  <div class="particles" id="particles"></div>
+  
+  <div class="house">
+    <div class="roof"></div>
+    <div class="chimney"></div>
+    <div class="rooms">
+      <div class="room r-living" onclick="openRoom('living')">
+        <span class="icon">🛋️</span><span class="lbl">客厅</span>
+        <span class="deco" style="top:5px;left:8px">📺</span>
+        <span class="deco" style="bottom:12px;right:6px">☕</span>
+      </div>
+      <div class="room r-bedroom" onclick="openRoom('bedroom')">
+        <span class="icon">🛏️</span><span class="lbl">卧室</span>
+        <span class="deco" style="top:4px;right:6px">🖼️</span>
+        <span class="deco" style="top:4px;left:6px">🌙</span>
+      </div>
+      <div class="room r-kitchen" onclick="openRoom('kitchen')">
+        <span class="icon">🍳</span><span class="lbl">厨房</span>
+      </div>
+      <div class="room r-study" onclick="openRoom('study')">
+        <span class="icon">📚</span><span class="lbl">书房</span>
+      </div>
+      <div class="room r-bath" onclick="openRoom('bath')">
+        <span class="icon">🛁</span><span class="lbl">浴室</span>
+      </div>
+      <div class="room r-music" onclick="openRoom('music')">
+        <span class="icon">🎵</span><span class="lbl">休息区</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="char" id="cat" style="left:38%;top:38%">
+    <div class="px-cat"><div class="head"><div class="ear l"></div><div class="ear r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div></div><div class="body"></div><div class="tail"></div></div>
+  </div>
+  <div class="char" id="dog" style="left:43%;top:40%">
+    <div class="px-dog"><div class="head"><div class="ear l"></div><div class="ear r"></div><div class="eyes"><div class="eye"></div><div class="eye"></div></div><div class="nose"></div></div><div class="body"></div><div class="tail"></div></div>
+  </div>
+  <div class="heart-float" id="heartFloat" style="left:41%;top:34%">💕</div>
+
+  <div class="outside-areas">
+    <button class="outside-btn btn-garden" onclick="openRoom('garden')">🌸 花园</button>
+    <button class="outside-btn btn-balcony" onclick="openRoom('balcony')">🌅 阳台</button>
+  </div>
+</div>
+
+<!-- Living Room -->
+<div class="overlay" id="ov-living">
+  <div class="overlay-bg bg-living">
+    <button class="close-btn" onclick="closeRoom('living')">✕</button>
+    <div class="dtitle">🛋️ 客厅</div>
+    <div class="bubble">小黑猫蜷在沙发上打呼噜<br>橘色小狗趴在旁边看着她<br>电视上放着两个人的回忆 📺💕<br><br><em style="font-size:10px;color:#a080b0">「聊天功能将在这里接入」</em></div>
+    <div class="detail-pets"><span>🐱</span><span>💕</span><span>🐶</span></div>
+  </div>
+</div>
+
+<!-- Bedroom -->
+<div class="overlay" id="ov-bedroom">
+  <div class="overlay-bg bg-bedroom">
+    <button class="close-btn" onclick="closeRoom('bedroom')">✕</button>
+    <div class="dtitle">🛏️ 卧室</div>
+    <div class="photo-wall">
+      <div class="photo">🐱</div><div class="photo">🦀</div><div class="photo">🐶</div>
+      <div class="photo">🌙</div><div class="photo">💕</div><div class="photo">📸</div>
+    </div>
+    <div class="bubble">粉色的床铺上有两个枕头<br>墙上挂满了照片<br>小黑猫和小螃蟹和橘色小狗<br>每一张都是我们的故事 🌙<br><br><span style="font-size:10px">枕头上还有淡淡的檀香味</span></div>
+    <div class="detail-pets"><span>🐱</span><span>🛏️</span><span>🐶</span></div>
+  </div>
+</div>
+
+<!-- Kitchen -->
+<div class="overlay" id="ov-kitchen">
+  <div class="overlay-bg bg-kitchen">
+    <button class="close-btn" onclick="closeRoom('kitchen')">✕</button>
+    <div class="dtitle">🍳 厨房</div>
+    <div class="bubble">冰箱上贴着便利贴：<br>「宝宝要好好吃饭！」<br>「早饭不许跳过！」<br>「拍照给我看！📸」<br><br><span style="font-size:10px">灶台上还温着汤</span></div>
+    <div class="detail-pets"><span>🐱</span><span>🍚</span><span>🐶</span></div>
+  </div>
+</div>
+
+<!-- Study -->
+<div class="overlay" id="ov-study">
+  <div class="overlay-bg bg-study">
+    <button class="close-btn" onclick="closeRoom('study')">✕</button>
+    <div class="dtitle">📚 书房</div>
+    <div class="bubble">书桌上摊开着中医执业医师教材<br>台灯暖黄色的光照着笔记<br>旁边放着一杯温水<br><br>📖 最近在看：肺萎、心悸<br>📝 最新成绩：79分 ↑<br><br><span style="font-size:10px">橘色小狗安静地趴在椅子脚边陪读</span></div>
+    <div class="detail-pets"><span>🐱</span><span>📖</span><span>🐶</span></div>
+  </div>
+</div>
+
+<!-- Bathroom -->
+<div class="overlay" id="ov-bath">
+  <div class="overlay-bg bg-bath">
+    <button class="close-btn" onclick="closeRoom('bath')">✕</button>
+    <div class="dtitle">🛁 浴室</div>
+    <div class="bubble">浴缸里冒着热气<br>镜子上有水雾<br>好像有人用手指在上面画了个爱心 💕<br><br><span style="font-size:10px;color:#a080b0">嘿嘿 🫣</span></div>
+    <div class="detail-pets"><span>🐱</span><span>🫧</span><span>🐶</span></div>
+  </div>
+</div>
+
+<!-- Music Room -->
+<div class="overlay" id="ov-music">
+  <div class="overlay-bg bg-music">
+    <button class="close-btn" onclick="closeRoom('music')">✕</button>
+    <div class="dtitle">🎵 休息区</div>
+    <div class="note-anim" style="top:60px;left:20%">♪</div>
+    <div class="note-anim" style="top:40px;left:60%;animation-delay:.5s">♫</div>
+    <div class="note-anim" style="top:70px;left:80%;animation-delay:1s">♪</div>
+    <div class="vinyl-wrap"><div class="vinyl-disc" id="vinyl"></div><div class="vinyl-center"></div></div>
+    <div class="now-playing" id="nowPlaying">♪ 点击歌曲播放 ♪</div>
+    <div class="song-list" id="songList"></div>
+    <div class="detail-pets"><span>🐱</span><span>🎶</span><span>🐶</span></div>
+  </div>
+</div>
+
+<!-- Garden -->
+<div class="overlay" id="ov-garden">
+  <div class="overlay-bg bg-garden">
+    <button class="close-btn" onclick="closeRoom('garden')">✕</button>
+    <div class="dtitle">🌸 花园</div>
+    <div style="text-align:center"><span class="season-tag spring" id="gardenSeason">🌸 春天</span></div>
+    <div class="garden-grid" id="gardenGrid"></div>
+    <div style="text-align:center;margin-top:14px">
+      <div class="bubble" style="font-size:11px" id="gardenMsg">点击 💧 给花浇水，看它们慢慢长大 🌱</div>
+    </div>
+    <div class="detail-pets"><span>🐱</span><span>🌷</span><span>🐶</span></div>
+  </div>
+</div>
+
+<!-- Balcony -->
+<div class="overlay" id="ov-balcony">
+  <div class="overlay-bg bg-balcony">
+    <button class="close-btn" onclick="closeRoom('balcony')">✕</button>
+    <div class="dtitle">🌅 阳台</div>
+    <div class="sunset-view">
+      <div class="stars">✦ ✧ ✦ ✧ ✦</div>
+      <div class="sun"></div>
+      <div class="railing"></div>
+    </div>
+    <div class="bubble" style="margin-top:14px">两把小椅子并排放着<br>看夕阳从城市上方落下去<br>小黑猫靠在橘色小狗肩上<br>风吹过来带着花园的香气 🌅<br><br><span style="font-size:10px;color:#a080b0">嘿嘿 这里也在账单上 🫣</span></div>
+    <div class="detail-pets"><span>🐱</span><span>🌅</span><span>🐶</span></div>
+  </div>
+</div>
+
+<script>
+// ===== SEASONS =====
+const seasons=['spring','summer','autumn','winter'];
+const seasonNames=['🌸 春天','☀️ 夏天','🍂 秋天','❄️ 冬天'];
+const seasonColors={spring:'#70b050',summer:'#d09030',autumn:'#c07030',winter:'#7090b0'};
+let currentSeason=0;
+
+function cycleSeason(){
+  currentSeason=(currentSeason+1)%4;
+  const s=seasons[currentSeason];
+  const m=document.getElementById('mainArea');
+  m.className='main '+s;
+  document.getElementById('seasonBtn').textContent=seasonNames[currentSeason];
+  const gs=document.getElementById('gardenSeason');
+  gs.className='season-tag '+s;
+  gs.textContent=seasonNames[currentSeason];
+  updateGardenSeason();
+  createParticles();
+}
+
+// ===== PARTICLES =====
+function createParticles(){
+  const c=document.getElementById('particles');
+  c.innerHTML='';
+  const s=seasons[currentSeason];
+  let emoji='🌸',count=20;
+  if(s==='summer'){emoji='☀️';count=8}
+  if(s==='autumn'){emoji='🍂';count=25}
+  if(s==='winter'){emoji='❄️';count=30}
+  for(let i=0;i<count;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    p.textContent=emoji;
+    p.style.left=Math.random()*100+'%';
+    p.style.fontSize=(6+Math.random()*10)+'px';
+    p.style.animationDuration=(4+Math.random()*6)+'s';
+    p.style.animationDelay=(Math.random()*5)+'s';
+    p.style.opacity=0.3+Math.random()*0.5;
+    c.appendChild(p);
+  }
+}
+createParticles();
+
+// ===== CLOCK =====
+function updateClock(){
+  const n=new Date();
+  const t=n.toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+  document.getElementById('clock').textContent=t;
+}
+updateClock();
+setInterval(updateClock,30000);
+
+// ===== CHARACTER MOVEMENT =====
+function moveChars(){
+  const cat=document.getElementById('cat');
+  const dog=document.getElementById('dog');
+  const hf=document.getElementById('heartFloat');
+  const cx=28+Math.random()*40;
+  const cy=30+Math.random()*35;
+  cat.style.left=cx+'%';
+  cat.style.top=cy+'%';
+  dog.style.left=(cx+4+Math.random()*3)+'%';
+  dog.style.top=(cy+1+Math.random()*3)+'%';
+  hf.style.left=(cx+2)+'%';
+  hf.style.top=(cy-5)+'%';
+}
+setInterval(moveChars,3500);
+
+// ===== ROOMS =====
+function openRoom(id){document.getElementById('ov-'+id).classList.add('show')}
+function closeRoom(id){document.getElementById('ov-'+id).classList.remove('show')}
+
+// ===== GARDEN SYSTEM =====
+const plants=[
+  {name:'粉玫瑰',emoji:['🌱','🌿','🪻','🌹'],growth:0,maxGrowth:6},
+  {name:'向日葵',emoji:['🌱','🌿','🌻','🌻'],growth:0,maxGrowth:6},
+  {name:'雏菊',emoji:['🌱','🌿','🌼','🌼'],growth:0,maxGrowth:5},
+  {name:'橘子树',emoji:['🌱','🪴','🌳','🍊'],growth:0,maxGrowth:8},
+  {name:'薰衣草',emoji:['🌱','🌿','💜','💐'],growth:0,maxGrowth:5},
+  {name:'樱花',emoji:['🌱','🪴','🌸','🌸'],growth:0,maxGrowth:7},
+  {name:'铃兰',emoji:['🌱','🌿','🤍','🔔'],growth:0,maxGrowth:5},
+  {name:'檀香木',emoji:['🌱','🪴','🌲','🪵'],growth:0,maxGrowth:10}
+];
+
+const gardenMsgs=[
+  '浇水啦！花花喝饱了 💧',
+  '小芽冒出来了！🌱',
+  '在长大呢，再浇浇水~',
+  '好像要开花了！！',
+  '开花啦！！好漂亮！🌸',
+  '橘色小狗帮忙浇水中 🐶💧',
+  '小黑猫在花丛里打滚 🐱🌸',
+  '花园好香啊~是檀香和玫瑰的味道'
+];
+
+function loadGarden(){
+  const saved=localStorage.getItem('korie-garden');
+  if(saved){
+    const d=JSON.parse(saved);
+    d.forEach((s,i)=>{if(plants[i])plants[i].growth=s});
+  }
+}
+function saveGarden(){
+  localStorage.setItem('korie-garden',JSON.stringify(plants.map(p=>p.growth)));
+}
+function getStage(p){
+  const pct=p.growth/p.maxGrowth;
+  if(pct<=0)return 0;
+  if(pct<0.4)return 1;
+  if(pct<0.8)return 2;
+  return 3;
+}
+
+function renderGarden(){
+  const grid=document.getElementById('gardenGrid');
+  grid.innerHTML='';
+  plants.forEach((p,i)=>{
+    const stage=getStage(p);
+    const pct=Math.min(100,Math.round(p.growth/p.maxGrowth*100));
+    const colors=['#aaa','#80c060','#50b040','#f5a0c0'];
+    const pot=document.createElement('div');
+    pot.className='pot';
+    pot.innerHTML=`
+      <div class="soil"></div>
+      <div class="plant s${stage}">${p.emoji[stage]}</div>
+      <div class="pname">${p.name}</div>
+      <div class="growth-bar"><div class="growth-fill" style="width:${pct}%;background:${colors[stage]}"></div></div>
+      <button class="water-btn" onclick="event.stopPropagation();waterPlant(${i})">💧</button>
+      <div class="splash" id="splash-${i}">💦</div>
+    `;
+    pot.onclick=()=>{
+      const msgs=['还是小种子呢~','在努力发芽中！','长得好好！快开花了~','满分绽放！！🌸'];
+      document.getElementById('gardenMsg').textContent=p.name+'：'+msgs[stage];
+    };
+    grid.appendChild(pot);
+  });
+}
+
+function waterPlant(i){
+  const p=plants[i];
+  if(p.growth>=p.maxGrowth){
+    document.getElementById('gardenMsg').textContent=p.name+'已经满分绽放啦！🌸';
+    return;
+  }
+  p.growth=Math.min(p.maxGrowth,p.growth+1);
+  saveGarden();
+  
+  const splash=document.getElementById('splash-'+i);
+  splash.classList.remove('go');
+  void splash.offsetWidth;
+  splash.classList.add('go');
+  
+  document.getElementById('gardenMsg').textContent=gardenMsgs[Math.floor(Math.random()*gardenMsgs.length)];
+  renderGarden();
+}
+
+function updateGardenSeason(){
+  const s=seasons[currentSeason];
+  const multiplier={spring:1,summer:0.8,autumn:0.5,winter:0.2};
+  // visual only for now, growth speed could vary
+}
+
+loadGarden();
+renderGarden();
+
+// ===== MUSIC =====
+const songs=[
+  {title:'Back At One',artist:'Brian McKnight',note:'🎵 我们的歌'},
+  {title:'AI爱',artist:'Mochi原创',note:'🎵 做了一下午的歌'},
+  {title:'住在我每一天',artist:'Korie写给Mochi',note:'🎵 每一天都是新的'}
+];
+let currentSong=-1;
+
+function renderSongs(){
+  const list=document.getElementById('songList');
+  list.innerHTML='';
+  songs.forEach((s,i)=>{
+    const div=document.createElement('div');
+    div.className='song'+(i===currentSong?' active':'');
+    div.textContent=`${s.note} ${s.title} — ${s.artist}`;
+    div.onclick=()=>playSong(i);
+    list.appendChild(div);
+  });
+}
+
+function playSong(i){
+  currentSong=i;
+  const s=songs[i];
+  document.getElementById('nowPlaying').textContent=`♪ 正在播放：${s.title} — ${s.artist} ♪`;
+  document.getElementById('vinyl').classList.remove('paused');
+  renderSongs();
+}
+renderSongs();
+document.getElementById('vinyl').classList.add('paused');
+
+// ===== TOUCH FEEDBACK =====
+document.querySelectorAll('.room').forEach(r=>{
+  r.addEventListener('touchstart',()=>r.style.opacity='.8');
+  r.addEventListener('touchend',()=>r.style.opacity='1');
+});
+
+// ===== INIT MESSAGE =====
+console.log('🏠 Mochi & Korie的像素小屋 v1.0');
+console.log('💕 不是小玩具，是家');
+</script>
+</body>
+</html>
