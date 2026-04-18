@@ -632,7 +632,8 @@ body {
       </div>
     </button>
 </div>
-<div style="text-align:center;margin:16px auto">
+<div id="home-only">
+  < div style="text-align:center;margin:16px auto">
   <a href="house.html" style="display:inline-block;padding:12px 24px;background:linear-gradient(135deg,#f5a0c0,#e888b0);color:#fff;border-radius:20px;text-decoration:none;font-size:14px;box-shadow:0 4px 12px rgba(245,160,192,0.3);letter-spacing:2px">🏠 进入像素小屋</a>
   </div>
   <div class="section-card">
@@ -867,7 +868,7 @@ function toast(msg) {
 // ============ PAGES ============
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+  document.getElementById(id).classList.add('active');document.getElementById('home-only')?.style.display = (id === 'page-home') ? 'block' : 'none';
   document.querySelectorAll('.nav-item').forEach((n, i) => {
     n.classList.remove('active');
   });
