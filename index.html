@@ -867,7 +867,7 @@ function toast(msg) {
 // ============ PAGES ============
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');document.getElementById('home-only')?.style.display = (id === 'page-home') ? 'block' : 'none';
+  document.getElementById(id).classList.add('active');
   document.querySelectorAll('.nav-item').forEach((n, i) => {
     n.classList.remove('active');
   });
