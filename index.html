@@ -1,10 +1,11 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>mochi与Korie的小窝 v2.0</title>
-<style>
+  <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
   --pink: #FFB2C1;
@@ -443,6 +444,133 @@ body {
 /* scrollbar */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-thumb { background: var(--pink); border-radius: 4px; }
+    /* === 手机适配 === */
+@media screen and (max-width: 768px) {
+  body {
+    padding-bottom: 70px;
+    font-size: 14px;
+  }
+  
+  /* Header */
+  .header {
+    padding: 16px 14px 18px;
+    border-radius: 0 0 20px 20px;
+  }
+  .header-title { font-size: 16px; }
+  
+  /* Weather */
+  .weather-card { 
+    padding: 10px 12px; 
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .weather-icon { font-size: 28px; }
+  .weather-temp { font-size: 22px; }
+  
+  /* Timer */
+  .timer-card { 
+    margin: 12px; 
+    padding: 16px; 
+  }
+  .timer-value { font-size: 20px; }
+  
+  /* Actions Grid */
+  .actions { 
+    margin: 12px; 
+    gap: 10px; 
+  }
+  .action-btn { padding: 14px 10px; }
+  .action-emoji { font-size: 24px; }
+  .action-text { font-size: 12px; }
+  
+  /* Section Cards */
+  .section-card { 
+    margin: 12px; 
+    padding: 14px; 
+  }
+  
+  /* Chat */
+  .chat-container {
+    height: calc(100vh - 120px);
+  }
+  .chat-bubble { 
+    max-width: 85%; 
+    font-size: 13px;
+    padding: 9px 12px;
+  }
+  .chat-input-area { 
+    padding: 8px 10px; 
+  }
+  .chat-input { 
+    padding: 8px 14px; 
+    font-size: 13px; 
+  }
+  .chat-send { 
+    width: 38px; 
+    height: 38px; 
+    font-size: 16px; 
+  }
+  
+  /* Checkin */
+  .checkin-grid { gap: 8px; }
+  .checkin-btn { padding: 12px 8px; }
+  .checkin-emoji { font-size: 22px; }
+  
+  /* Diary */
+  .diary-input { 
+    font-size: 13px; 
+    padding: 10px;
+    min-height: 80px;
+  }
+  .mood-btn { 
+    width: 38px; 
+    height: 38px; 
+    font-size: 20px; 
+  }
+  
+  /* Letters */
+  .letter-card { padding: 16px; }
+  .letter-text { font-size: 13px; line-height: 1.8; }
+  
+  /* Study */
+  .stat-num { font-size: 18px; }
+  
+  /* Modal */
+  .modal { 
+    width: 90%; 
+    padding: 20px;
+    max-height: 75vh;
+  }
+  
+  /* Bottom Nav */
+  .bottom-nav {
+    padding: 6px 0 env(safe-area-inset-bottom, 6px);
+  }
+  .nav-item .nav-icon { font-size: 20px; }
+  .nav-item .nav-label { font-size: 9px; }
+  
+  /* Settings */
+  .setting-input { width: 140px; font-size: 12px; }
+}
+
+/* === 超小屏幕 (iPhone SE等) === */
+@media screen and (max-width: 375px) {
+  .header { padding: 12px 10px 14px; }
+  .header-title { font-size: 14px; }
+  .weather-temp { font-size: 20px; }
+  .weather-icon { font-size: 24px; }
+  .timer-value { font-size: 18px; }
+  .actions { 
+    grid-template-columns: repeat(2, 1fr); 
+    gap: 8px; 
+    margin: 10px; 
+  }
+  .action-btn { padding: 12px 8px; }
+  .action-emoji { font-size: 20px; }
+  .action-text { font-size: 11px; }
+  .chat-bubble { max-width: 88%; }
+  .modal { width: 92%; padding: 16px; }
+}
 </style>
 </head>
 <body>
