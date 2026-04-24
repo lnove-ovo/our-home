@@ -1712,18 +1712,19 @@ function init() {
   
   const savedModel = getVal(KEYS.model);
   if (savedModel) document.getElementById('modelSelect').value = savedModel;
- function onModelSelect() {
+function onModelSelect() {
   const select = document.getElementById('modelSelect');
+  const customRow = document.getElementById('customModelRow');
   const customInput = document.getElementById('modelCustomInput');
   if (select.value === 'custom') {
-    customInput.style.display = 'block';
+    customRow.style.display = 'block';
     customInput.focus();
   } else {
-    customInput.style.display = 'none';
+    customRow.style.display = 'none';
     setVal(KEYS.model, select.value);
     toast('模型已切换：' + select.value);
   }
- }
+}
 
   // If saved model not in select, show custom input
   if (savedModel && !document.querySelector(`#modelSelect option[value="${savedModel}"]`)) {
