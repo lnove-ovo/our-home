@@ -1712,6 +1712,7 @@ function init() {
   
   const savedModel = getVal(KEYS.model);
   if (savedModel) document.getElementById('modelSelect').value = savedModel;
+ 
   // Custom model input save
   document.getElementById('modelCustomInput').addEventListener('change', function() {
     const val = this.value.trim();
