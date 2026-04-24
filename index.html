@@ -1712,7 +1712,21 @@ function init() {
   
   const savedModel = getVal(KEYS.model);
   if (savedModel) document.getElementById('modelSelect').value = savedModel;
-  
+  // Custom model input save
+  document.getElementById('modelCustomInput').addEventListener('change', function() {
+    const val = this.value.trim();
+    if (val) {
+      setVal(KEYS.model, val);
+      toast('模型已切换：' + val);
+    }
+  });
+
+  // If saved model not in select, show custom input
+  if (savedModel && !document.querySelector(`#modelSelect option[value="${savedModel}"]`)) {
+    document.getElementById('modelSelect').value = 'custom';
+    document.getElementById('modelCustomInput').style.display = 'block';
+    document.getElementById('modelCustomInput').value = savedModel;
+  }
   // City input save on change
   document.getElementById('cityInput').addEventListener('change', function() {
     setVal(KEYS.city, this.value.trim());
@@ -1726,11 +1740,7 @@ function init() {
     toast('API地址已更新');
   });
   
-  // Model save on change
-  document.getElementById('modelSelect').addEventListener('change', function() {
-    setVal(KEYS.model, this.value);
-    toast('模型已切换：' + this.value);
-  });
+  
   
   initMoods();
   renderCheckin();
