@@ -1714,17 +1714,22 @@ function init() {
   if (savedModel) document.getElementById('modelSelect').value = savedModel;
 function onModelSelect() {
   const select = document.getElementById('modelSelect');
-  const customRow = document.getElementById('customModelRow');
   const customInput = document.getElementById('modelCustomInput');
   if (select.value === 'custom') {
-    customRow.style.display = 'block';
+    customInput.style.display = 'block';
     customInput.focus();
   } else {
-    customRow.style.display = 'none';
-    setVal(KEYS.model, select.value);
-    toast('模型已切换：' + select.value);
+    customInput.style.display = 'none';
+    setVal('mochi_model', select.value);
+    alert('模型已切换：' + select.value);
   }
 }
+
+// 自定义模型名保存
+document.getElementById('modelCustomInput').addEventListener('change', function() {
+  setVal('mochi_model', this.value.trim());
+  alert('自定义模型已保存：' + this.value.trim());
+});
 
   // If saved model not in select, show custom input
   if (savedModel && !document.querySelector(`#modelSelect option[value="${savedModel}"]`)) {
