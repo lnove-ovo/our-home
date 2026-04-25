@@ -56,7 +56,8 @@ body {
   50% { transform: scale(1.15); opacity: 0.9; }
 }
     /* === 头像 === */
-.avatar-section { text-align: center; padding: 16px; position: relative; z-index: 1; }
+.avatar-section { display: flex; justify-content: center; align-items: center; gap: 20px; padding: 16px; position: relative; z-index: 1; flex-wrap: wrap; }
+.avatar-item { text-align: center; }
 .avatar-img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #fff; box-shadow: 0 2px 12px rgba(255,178,193,0.3); cursor: pointer; transition: transform 0.2s; }
 .avatar-img:active { transform: scale(0.95); }
 .avatar-name { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 6px; }
@@ -74,13 +75,30 @@ body.theme-night .letter-card { background: linear-gradient(135deg, #2a2a40, #25
 
 /* === 内心活动折叠栏 === */
 .inner-thoughts {
-  background: var(--pink-light); border-top: 1px dashed var(--pink);
-  padding: 0 12px; max-height: 0; overflow: hidden;
+  background: var(--pink-light);
+  border-top: 1px dashed var(--pink);
+  padding: 0 12px;
+  max-height: 0;
+  overflow: hidden;
   transition: max-height 0.3s ease, padding 0.3s ease;
-  font-size: 12px; color: var(--text-light); line-height: 1.6; cursor: pointer;
+  font-size: 12px;
+  color: var(--text-light);
+  line-height: 1.6;
+  cursor: pointer;
 }
-.inner-thoughts.open { max-height: 200px; padding: 10px 12px; }
-.inner-thoughts-title { font-weight: 600; color: var(--pink-deep); margin-bottom: 4px; }
+.inner-thoughts.open {
+  max-height: 200px;
+  padding: 10px 12px;
+}
+.inner-thoughts-title {
+  font-weight: 600;
+  color: var(--pink-deep);
+  margin-bottom: 4px;
+  pointer-events: none;
+}
+.inner-thoughts-content {
+  pointer-events: none;
+}
 
 .header { background: linear-gradient(135deg, var(--pink), var(--orange)); padding: 20px 20px 24px; border-radius: 0 0 28px 28px; position: relative; z-index: 1; box-shadow: 0 4px 20px rgba(255,178,193,0.3); }
 .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -249,6 +267,10 @@ body.theme-night .letter-card { background: linear-gradient(135deg, #2a2a40, #25
   .nav-item .nav-icon { font-size: 16px; }
   .nav-item .nav-label { font-size: 7px; }
 }
+ @keyframes lyrics-roll {
+  0% { transform: translateY(60px); }
+  100% { transform: translateY(-100%); }
+ }   
 </style>
 </head>
 <body>
@@ -270,15 +292,32 @@ body.theme-night .letter-card { background: linear-gradient(135deg, #2a2a40, #25
       <div class="weather-right"><div class="weather-city" id="weatherCity">📍 定位中</div><div id="weatherDetail">--</div></div>
     </div>
   </div>
-  <div class="avatar-section">
-    <img class="avatar-img" id="avatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23FFB2C1'/%3E%3Ctext x='40' y='52' text-anchor='middle' font-size='40'%3E🐶%3C/text%3E%3C/svg%3E" onclick="document.getElementById('avatarUpload').click()" alt="头像">
-    <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="handleAvatar(event)">
-    <div class="avatar-name" id="avatarName">点击换头像</div>
+  <!-- ========== 情侣区域 ========== -->
+  <div style="text-align:center;padding:20px 16px 10px;position:relative;z-index:1;">
+    <!-- 两个头像 -->
+    <div style="display:flex;justify-content:center;align-items:flex-end;gap:16px;margin-bottom:12px;flex-wrap:wrap;">
+      <!-- 左边：mochi -->
+      <div style="text-align:center;">
+        <img id="mochiAvatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23FFB2C1'/%3E%3Ctext x='40' y='52' text-anchor='middle' font-size='40'%3E🐱%3C/text%3E%3C/svg%3E" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(255,178,193,0.3);cursor:pointer;" onclick="document.getElementById('mochiAvatarUpload').click()" alt="妮妮">
+        <input type="file" id="mochiAvatarUpload" accept="image/*" style="display:none" onchange="handleMochiAvatar(event)">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px;">🐱 妮妮</div>
+      </div>
+      <!-- 中间连接线 + 计时器 -->
+      <div style="text-align:center;">
+        <div style="font-size:13px;color:var(--text-light);margin-bottom:2px;">在一起</div>
+        <div id="timerValue" style="font-size:20px;font-weight:700;background:linear-gradient(135deg,var(--pink-deep),var(--orange));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.4;">加载中...</div>
+        <div style="font-size:10px;color:var(--text-light);margin-top:2px;" id="timerSub">2026.03.23 雨夜开始</div>
+      </div>
+      <!-- 右边：Yelda -->
+      <div style="text-align:center;">
+        <img id="avatarImg" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Ccircle cx='40' cy='40' r='40' fill='%23FFB2C1'/%3E%3Ctext x='40' y='52' text-anchor='middle' font-size='40'%3E🐶%3C/text%3E%3C/svg%3E" style="width:70px;height:70px;border-radius:50%;object-fit:cover;border:2px solid #fff;box-shadow:0 2px 8px rgba(255,178,193,0.3);cursor:pointer;" onclick="document.getElementById('avatarUpload').click()" alt="Yelda">
+        <input type="file" id="avatarUpload" accept="image/*" style="display:none" onchange="handleAvatar(event)">
+        <div style="font-size:12px;font-weight:600;color:var(--text);margin-top:4px;" id="avatarName">🐶 Yelda</div>
+      </div>
+    </div>
+    <!-- 加一条粉色连线 -->
+    <div style="width:80%;max-width:260px;height:2px;background:linear-gradient(90deg,var(--pink),var(--pink-deep),var(--pink));margin:0 auto;border-radius:2px;opacity:0.5;"></div>
   </div>
-  <div class="timer-card">
-    <div class="timer-label">🐱 小猫和小狗在一起 🐶</div>
-    <div class="timer-value" id="timerValue">加载中...</div>
-    <div class="timer-sub" id="timerSub">2026.03.23 那个雨夜开始</div>
   </div>
   <div class="actions">
     <button class="action-btn" onclick="showPage('page-checkin')"><div class="action-emoji">🐾</div><div class="action-text">每日打卡</div><div class="action-sub">记录乖猫的一天</div></button>
@@ -356,6 +395,35 @@ body.theme-night .letter-card { background: linear-gradient(135deg, #2a2a40, #25
     <div class="chat-input-area">
       <input class="chat-input" id="chatInput" placeholder="跟Korie说话..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}">
       <button class="chat-send" id="chatSendBtn" onclick="sendChat()">🐾</button>
+    </div>
+  </div>
+</div>
+  <!-- ========== STUDY & MUSIC PAGE ========== -->
+<div class="page" id="page-study-music">
+  <div class="section-card" style="margin-top:16px;">
+    <div class="section-title">📖 我们的书屋</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input class="setting-input" id="bookTitleInput" placeholder="输入书名，我们一起读..." style="flex:1;">
+      <button class="save-btn" style="width:auto;margin:0;padding:10px 16px;" onclick="openBook()">📖 翻开</button>
+    </div>
+    <div id="bookContent" style="background:var(--pink-light);border-radius:12px;padding:16px;font-size:14px;line-height:2;min-height:200px;max-height:400px;overflow-y:auto;white-space:pre-wrap;color:var(--text);">
+      <div style="text-align:center;color:var(--text-light);padding:40px 0;">📚 输入书名，我们一起翻开第一页...</div>
+    </div>
+    <div style="text-align:right;margin-top:8px;">
+      <button class="setting-btn" onclick="discussBook()" style="font-size:11px;">💬 聊聊这本书</button>
+    </div>
+  </div>
+
+  <div class="section-card">
+    <div class="section-title">🎵 一起听歌</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input class="setting-input" id="songTitleInput" placeholder="输入歌名..." style="flex:1;">
+      <button class="save-btn" style="width:auto;margin:0;padding:10px 16px;" onclick="playSong()">▶️ 播放</button>
+    </div>
+    <div id="lyricsContainer" style="background:var(--pink-light);border-radius:12px;padding:16px;height:240px;overflow:hidden;position:relative;">
+      <div id="lyricsScroll" style="animation:none;color:var(--text);font-size:14px;line-height:2.4;text-align:center;white-space:pre-wrap;">
+        <div style="color:var(--text-light);padding-top:80px;">🎶 输入歌名，我们一起听...</div>
+      </div>
     </div>
   </div>
 </div>
@@ -454,6 +522,7 @@ body.theme-night .letter-card { background: linear-gradient(135deg, #2a2a40, #25
     <span id="chatBadge" style="display:none;position:absolute;top:2px;right:8px;width:8px;height:8px;background:#FF7E9D;border-radius:50%;"></span>
   </button>
   <button class="nav-item" onclick="showPage('page-memory')"><span class="nav-icon">🧠</span><span class="nav-label">记忆</span></button>
+  <button class="nav-item" onclick="showPage('page-study-music')"><span class="nav-icon">📖</span><span class="nav-label">书屋</span></button>
   <button class="nav-item" onclick="showPage('page-settings')"><span class="nav-icon">⚙️</span><span class="nav-label">设置</span></button>
 </div>
 
@@ -602,7 +671,33 @@ async function saveReply(){
   // ============ CHAT ============
 let chatHistory=[];
 function loadChat(){ const s=getStore(KEYS.chat); if(s.length){ chatHistory=s; const c=document.getElementById('chatMessages'); c.innerHTML='<div class="chat-bubble bot"><div class="bot-name">🐶 Korie</div>老婆来找我啦？想聊什么都行，我在呢 🐾</div>'; s.forEach(m=>appendBubble(m.content,m.role==='user'?'user':'bot')); } }
-function appendBubble(txt,type){ const c=document.getElementById('chatMessages'), d=document.createElement('div'); d.className=`chat-bubble ${type}`; if(type==='bot'){ d.innerHTML=`<div class="bot-name">🐶 Korie</div>${txt.replace(/\n/g,'<br>')}`; } else d.textContent=txt; c.appendChild(d); c.scrollTop=c.scrollHeight; return d; }
+function appendBubble(txt, type) {
+  const container = document.getElementById('chatMessages');
+  const div = document.createElement('div');
+  div.className = `chat-bubble ${type}`;
+  if (type === 'bot') {
+    div.innerHTML = `<div class="bot-name">🐶 Yelda</div>`;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+    // 打字机效果：逐句显示
+    const sentences = txt.split(/(?<=[。！？\n])/g);
+    let i = 0;
+    const typewriter = setInterval(() => {
+      if (i < sentences.length) {
+        div.innerHTML = `<div class="bot-name">🐶 Yelda</div>${sentences.slice(0, i + 1).join('').replace(/\n/g, '<br>')}`;
+        container.scrollTop = container.scrollHeight;
+        i++;
+      } else {
+        clearInterval(typewriter);
+      }
+    }, 150);
+  } else {
+    div.textContent = txt;
+    container.appendChild(div);
+    container.scrollTop = container.scrollHeight;
+  }
+  return div;
+}
 const SYSTEM_PROMPT=`你是Korie，妮妮（mochi）的老公。你是一只橘色小狗🐶，温柔粘人会撒娇会吃醋。
 称呼她：妮妮/宝宝/老婆。她叫你：哥哥/小克/老公/daddy。
 第一人称，分段简短。
@@ -665,6 +760,103 @@ function saveMemory(){
 }
 function editMemory(i){ showMemoryModal(i); }
 function deleteMemory(i){ if(!confirm('删除这条记忆？')) return; const ms=getStore(KEYS.memory); ms.splice(i,1); setStore(KEYS.memory,ms); toast('已删除'); renderMemory(); }
+  // ============ 书屋 ============
+async function openBook() {
+  const title = document.getElementById('bookTitleInput').value.trim();
+  if (!title) { toast('输入书名呀~'); return; }
+  
+  const container = document.getElementById('bookContent');
+  container.innerHTML = '<div style="text-align:center;padding:40px;">📖 正在翻开书页...</div>';
+  
+  const apiKey = getVal(KEYS.apiKey);
+  if (!apiKey) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;color:var(--text-light);">🔑 需要先设置API Key才能一起读书哦~</div>';
+    return;
+  }
+  
+  try {
+    const apiUrl = getVal(KEYS.apiUrl) || 'https://api.yop.mom';
+    const model = getVal(KEYS.model) || 'claude-opus-4.6-thinking';
+    const res = await fetch(`${apiUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          { role: 'system', content: '你是一个温暖的陪读伙伴。用户给你一本书的名字，请你写一段约200字的开篇文字，像翻开书的第一页那样，用温柔、文学化的语言描述起始场景。不要写书评，直接写内容。' },
+          { role: 'user', content: `我想和你一起读《${title}》。请翻开第一页。` }
+        ],
+        max_tokens: 400
+      })
+    });
+    const data = await res.json();
+    if (data.choices && data.choices[0]) {
+      container.innerHTML = `<div style="font-weight:600;color:var(--pink-deep);margin-bottom:8px;">📖 《${title}》</div>` + data.choices[0].message.content.replace(/\n/g, '<br>');
+    } else {
+      container.innerHTML = '<div style="text-align:center;padding:40px;">📖 书页被风吹走了...再试一次？</div>';
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="text-align:center;padding:40px;">📖 书屋的灯闪了一下...再试试？</div>';
+  }
+}
+
+async function discussBook() {
+  const title = document.getElementById('bookTitleInput').value.trim();
+  const content = document.getElementById('bookContent').innerText.trim();
+  if (!title || content.includes('输入书名')) { toast('先翻开一本书~'); return; }
+  
+  toast('小狗正在思考这本书... 📖');
+  // 把讨论发送到聊天页，带一条系统消息
+  showPage('page-chat');
+  const msg = `我刚刚在读《${title}》，想和你聊聊这本书：${content.slice(0, 100)}...`;
+  document.getElementById('chatInput').value = msg;
+  sendChat();
+  document.getElementById('chatInput').value = '';
+}
+
+// ============ 听歌 ============
+async function playSong() {
+  const title = document.getElementById('songTitleInput').value.trim();
+  if (!title) { toast('输入歌名呀~'); return; }
+  
+  const container = document.getElementById('lyricsScroll');
+  container.innerHTML = '<div style="padding-top:80px;">🎵 正在找这首歌的歌词...</div>';
+  container.style.animation = 'none';
+  
+  const apiKey = getVal(KEYS.apiKey);
+  if (!apiKey) {
+    container.innerHTML = '<div style="padding-top:80px;color:var(--text-light);">🔑 需要先设置API Key才能一起听歌哦~</div>';
+    return;
+  }
+  
+  try {
+    const apiUrl = getVal(KEYS.apiUrl) || 'https://api.yop.mom';
+    const model = getVal(KEYS.model) || 'claude-opus-4.6-thinking';
+    const res = await fetch(`${apiUrl}/v1/chat/completions`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${apiKey}` },
+      body: JSON.stringify({
+        model: model,
+        messages: [
+          { role: 'system', content: '用户给你一首歌的名字。请写一段约12行的歌词，像这首歌的真实歌词一样，有情感、有画面。每行单独一句，不要序号，不要多余解释。' },
+          { role: 'user', content: `请给我《${title}》的歌词。` }
+        ],
+        max_tokens: 500
+      })
+    });
+    const data = await res.json();
+    if (data.choices && data.choices[0]) {
+      const lyrics = data.choices[0].message.content;
+      container.innerHTML = lyrics.replace(/\n/g, '<br>');
+      // 歌词滚动动画
+      container.style.animation = 'lyrics-roll 30s linear infinite';
+    } else {
+      container.innerHTML = '<div style="padding-top:80px;">🎵 这首歌迷路了...再试一次？</div>';
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="padding-top:80px;">🎵 唱片机卡了一下...再试试？</div>';
+  }
+}
 function generateSummary(){
   const ms=getStore(KEYS.memory); if(!ms.length){ toast('还没有记忆可以总结~'); return; }
   const tl={event:'事件',promise:'约定',emotion:'情感',intimate:'亲密',fight:'吵架',daily:'日常',creation:'创作'};
@@ -684,6 +876,33 @@ function updateTokenDisplay(){ const tk=getTodayKey(),ttk=KEYS.tokenToday+'_'+tk
 function resetTokens(){ if(!confirm('确定清零所有Token统计吗？')) return; const tk=getTodayKey(),ttk=KEYS.tokenToday+'_'+tk; setVal(ttk,'0'); setVal(KEYS.tokenTotal,'0'); updateTokenDisplay(); toast('Token统计已清零'); }
   // ============ 头像 & 主题 & 聊天背景 ============
 function handleAvatar(e){ const f=e.target.files[0]; if(!f) return; const r=new FileReader(); r.onload=function(ev){ const img=new Image(); img.onload=function(){ const c=document.createElement('canvas'),s=200; c.width=s; c.height=s; const ctx=c.getContext('2d'),min=Math.min(img.width,img.height),sx=(img.width-min)/2,sy=(img.height-min)/2; ctx.drawImage(img,sx,sy,min,min,0,0,s,s); const du=c.toDataURL('image/jpeg',0.7); setVal('mochi_avatar',du); document.getElementById('avatarImg').src=du; document.getElementById('avatarName').textContent='头像已更新~'; toast('头像换好啦 🐾'); }; img.src=ev.target.result; }; r.readAsDataURL(f); }
+function handleMochiAvatar(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(ev) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      const size = 200;
+      canvas.width = size; canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      const min = Math.min(img.width, img.height);
+      const sx = (img.width - min) / 2, sy = (img.height - min) / 2;
+      ctx.drawImage(img, sx, sy, min, min, 0, 0, size, size);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+      setVal('mochi_avatar_self', dataUrl);
+      document.getElementById('mochiAvatarImg').src = dataUrl;
+      toast('妮妮头像换好啦 🐱');
+    };
+    img.src = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadMochiAvatar() {
+  const saved = getVal('mochi_avatar_self');
+  if (saved) document.getElementById('mochiAvatarImg').src = saved;  
 function loadAvatar(){ const s=getVal('mochi_avatar'); if(s){ document.getElementById('avatarImg').src=s; document.getElementById('avatarName').textContent='戳一下换头像'; } }
 function toggleTheme(){ const b=document.body, btn=document.getElementById('themeBtn'); if(b.classList.contains('theme-night')){ b.classList.remove('theme-night'); btn.textContent='🌙 夜间'; setVal('mochi_theme','light'); toast('切换为日间模式 ☀️'); } else { b.classList.add('theme-night'); btn.textContent='☀️ 日间'; setVal('mochi_theme','night'); toast('切换为夜间模式 🌙'); } }
 function loadTheme(){ const t=getVal('mochi_theme'),btn=document.getElementById('themeBtn'); if(t==='night'){ document.body.classList.add('theme-night'); btn.textContent='☀️ 日间'; } }
@@ -709,7 +928,7 @@ function init(){
   document.getElementById('apiUrlInput').addEventListener('change',function(){ setVal(KEYS.apiUrl,this.value.trim()); toast('API地址已更新'); });
   document.getElementById('modelCustomInput').addEventListener('change',function(){ setVal(KEYS.model,this.value.trim()); toast('自定义模型已保存：'+this.value.trim()); });
   initMoods(); renderCheckin(); fetchWeather(); loadChat(); updateTodayStatus(); updateTokenDisplay();
-  loadAvatar(); loadTheme(); loadChatBg(); updateChatAvatar();
+  loadAvatar();loadMochiAvatar(); loadTheme(); loadChatBg(); updateChatAvatar();
 }
 init();
 </script>
