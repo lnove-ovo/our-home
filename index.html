@@ -376,6 +376,10 @@ body.theme-night .letter-card { background: linear-gradient(135deg, #2a2a40, #25
       <div class="inner-thoughts-title">🐶 Korie的小心思</div>
       <div class="inner-thoughts-content" id="innerThoughtsContent"></div>
     </div>
+    <div class="chat-token-bar">
+      <span id="chatTokenInfo">Token: 0 · 累计: 0</span>
+      <span id="chatModelInfo">模型: 加载中...</span>
+    </div>
     <div class="chat-input-area">
       <input class="chat-input" id="chatInput" placeholder="跟Korie说话..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChat();}">
       <button class="chat-send" id="chatSendBtn" onclick="sendChat()">🐾</button>
